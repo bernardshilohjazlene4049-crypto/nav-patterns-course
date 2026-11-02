@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>6 种导航设计模式 · 交互学习</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1d2433;--mute:#6b7488;--pri:#5b5bf7;--ok:#16a34a;--bad:#e11d48;--r:16px}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+header.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid #e5e8f0;display:flex;align-items:center;gap:12px;padding:10px 20px;flex-wrap:wrap}
+header.top b{font-size:18px}header.top nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.tab{border:0;background:transparent;padding:8px 14px;border-radius:999px;cursor:pointer;font-size:14px;color:var(--mute)}.tab.on{background:var(--pri);color:#fff}
+.prog{height:6px;width:140px;background:#e5e8f0;border-radius:9px;overflow:hidden}.prog i{display:block;height:100%;background:var(--pri);transition:.4s}
+main{max-width:1180px;margin:0 auto;padding:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 2px 12px rgba(20,30,60,.06)}
+.pcard{cursor:pointer;transition:.2s}.pcard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,30,60,.12)}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#eef;color:var(--pri);font-weight:700;margin-right:8px}
+.chip{display:inline-block;background:#eef0ff;color:var(--pri);padding:3px 10px;border-radius:999px;font-size:12px;margin:3px 4px 0 0}
+.done{color:var(--ok);font-size:12px;float:right}
+.lesson{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}@media(max-width:860px){.lesson{grid-template-columns:1fr}}
+.stage{height:360px;border-radius:14px;overflow:hidden;position:relative;border:1px solid #e3e6ee}
+.ctrl label{display:block;font-size:13px;margin:10px 0 2px;color:var(--mute)}.ctrl input[type=range]{width:100%}
+pre{background:#0f172a;color:#a5f3fc;padding:12px;border-radius:10px;font-size:12px;overflow:auto;white-space:pre-wrap}
+.btn{border:0;background:var(--pri);color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:14px}.btn.ghost{background:#eef0ff;color:var(--pri)}
+.seg{display:inline-flex;background:#eef0ff;border-radius:10px;padding:3px}.seg button{border:0;background:none;padding:6px 12px;border-radius:8px;cursor:pointer}.seg button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.tip{font-size:13px;color:var(--mute);line-height:1.7}
+/* demo shared */
+.ic{width:20px;height:20px;display:inline-block}.content{padding:20px;color:#334}
+.ph{background:#eef1f7;border-radius:10px;height:70px;margin:10px 0}
+/* 1 transparent */
+.d1{height:100%;background:linear-gradient(135deg,#6d5dfc,#e86ed0 60%,#ffb86b);color:#fff}
+.d1 .bar{display:flex;gap:6px;padding:14px 18px;align-items:center}
+.d1 .bar a{color:#fff;padding:7px 14px;cursor:pointer;font-size:14px;transition:.2s}
+.d1 .hero{padding:50px 30px}.d1 .hero h2{font-size:34px;margin:0}
+.d1.plain .bar{background:#fff;border-bottom:1px solid #ddd}.d1.plain .bar a{color:#333}.d1.plain .bar a.on{background:#e8e8e8!important;border-radius:0!important}
+/* 2 right rail */
+.d2{display:flex;height:100%;background:#f7f8fc}.d2 .main{flex:1;padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:start}
+.d2 .main div{background:#fff;border-radius:10px;height:90px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.d2 .main div.w{grid-column:span 3;height:120px}
+.d2 .rail{width:64px;background:#fff;display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 0;border-left:1px solid #eceef4}
+.d2 .rail a{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;cursor:pointer;color:#556}
+.d2 .rail a.on{background:#1d2433;color:#fff}.d2.plain{flex-direction:row-reverse}.d2.plain .rail{width:200px;border-left:0;border-right:1px solid #eee;align-items:stretch;padding:12px}.d2.plain .rail a{width:auto;justify-content:start;padding:0 12px}.d2.plain .rail a:after{content:attr(data-t);margin-left:8px}
+/* 3 expand */
+.d3{height:100%;background:#f7f8fc}.d3 .bar{display:flex;gap:6px;padding:12px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.d3 .bar a{display:flex;align-items:center;height:42px;padding:0 11px;border-radius:21px;cursor:pointer;color:#556;overflow:hidden;white-space:nowrap;transition:all .5s cubic-bezier(.34,1.56,.64,1)}
+.d3 .bar a span{max-width:0;opacity:0;transition:all .5s cubic-bezier(.34,1.56,.64,1);margin-left:0}
+.d3 .bar a.on{background:var(--pri);color:#fff}.d3 .bar a.on span{max-width:90px;opacity:1;margin-left:8px}
+.d3.plain .bar a span{max-width:90px;opacity:1;margin-left:6px}.d3.plain .bar a{transition:none}.d3.plain .bar a span{transition:none}
+/* 4 icon+title */
+.d4{display:flex;height:100%;background:#fff}.d4 .side{width:56px;background:#f3f4f8;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0}
+.d4 .side a{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;cursor:pointer;color:#667}.d4 .side a.on{background:#fff;color:var(--pri);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.d4 .hd{display:flex;align-items:center;gap:14px;padding:18px 22px}.d4 .hd h2{margin:0;font-size:32px;transition:.2s}
+.d4 select{padding:6px 10px;border-radius:8px;border:1px solid #dde}
+.d4.plain .hd h2{font-size:15px;color:#888;font-weight:400}.d4.plain select{display:none}
+/* 5 tooltip */
+.d5{display:flex;height:100%;background:#f7f8fc}.d5 .rail{width:58px;background:#1d2433;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+.d5 .rail a{position:relative;width:40px;height:40px;display:grid;place-items:center;border-radius:10px;color:#aab;cursor:pointer}.d5 .rail a:hover,.d5 .rail a.on{background:#323b52;color:#fff}
+.d5 .rail a:after{content:attr(data-t);position:absolute;left:52px;background:#111;color:#fff;font-size:12px;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;transform:translateX(-6px);pointer-events:none;transition:.18s;z-index:5}
+.d5 .rail a:hover:after{opacity:1;transform:none}.d5 .rail hr{width:26px;border:0;border-top:1px solid #4a5370;margin:6px 0}
+.d5.plain .rail a:after{display:none}.d5.plain .rail hr{display:none}
+/* 6 quick actions */
+.d6{display:flex;height:100%;background:#f7f8fc}.d6 .side{width:150px;background:#fff;padding:12px;border-right:1px solid #eee}
+.d6 .side a{display:block;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px;color:#445}.d6 .side a.on{background:#eef0ff;color:var(--pri)}
+.d6 .qa{width:58px;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;background:#fff;border-right:1px solid #eee}
+.d6 .qa button{width:40px;height:40px;border-radius:50%;border:0;cursor:pointer;font-size:18px;background:#f0f1f6}.d6 .qa button.hot{background:#ff7a1a;color:#fff;box-shadow:0 4px 12px rgba(255,122,26,.45)}
+.d6.plain .qa{display:none}
+.toast{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:#1d2433;color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;opacity:0;transition:.3s}.toast.show{opacity:1}
+/* quiz */
+.opt{display:block;width:100%;text-align:left;padding:12px 14px;margin:8px 0;border:2px solid #e3e6ee;background:#fff;border-radius:12px;cursor:pointer;font-size:15px}
+.opt:hover{border-color:var(--pri)}.opt.ok{border-color:var(--ok);background:#ecfdf3}.opt.bad{border-color:var(--bad);background:#fff1f3}
+.fb{padding:12px;border-radius:10px;margin-top:10px;line-height:1.7}.fb.ok{background:#ecfdf3}.fb.bad{background:#fff1f3}
+.mini{height:230px}.hide{display:none}
+.big{font-size:44px;font-weight:800;color:var(--pri)}
+table{border-collapse:collapse;width:100%}td,th{padding:8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+</style></head><body>
+<header class="top"><b>🧭 导航设计模式 · 6 招</b><div class="prog" title="学习进度"><i id="pbar"></i></div><span id="ptxt" class="tip"></span>
+<nav><button class="tab" data-v="home">总览</button><button class="tab" data-v="learn">逐个学</button><button class="tab" data-v="quiz">测验</button><button class="tab" data-v="wrong">错题本</button><button class="tab" data-v="sum">自测/总结</button></nav></header>
+<main id="app"></main>
+<script>
+const I={home:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+chart:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+user:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+set:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>',
+file:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/></svg>',
+msg:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H8l-4 4z"/></svg>'};
+const NAV=[['home','首页'],['chart','数据'],['user','用户'],['file','文档'],['msg','消息'],['set','设置']];
+const P=[
+{n:'透明顶栏',kw:['去底色分隔线','选中项半透明白色圆角底','融入背景'],sc:'首屏有大图/渐变背景',
+why:'导航不再"压"在大图上，而是像浮在画面里。选中态用半透明白底+圆角，在任何背景色上都可读。',
+mis:'背景太花时文字对比度不足 → 可加轻微 text-shadow 或给大图加一层暗色遮罩。',
+params:[['a','选中底透明度',0,60,22,'%'],['r','圆角',0,24,999,'px'],['blur','背景模糊',0,20,0,'px']],
+css:v=>`.nav{ background: transparent; border-bottom: none; }\n.nav a.active{\n  background: rgba(255,255,255,${v.a/100});\n  border-radius: ${v.r>=24?'999':v.r}px;\n  backdrop-filter: blur(${v.blur}px);\n}`,
+html:()=>`<div class="d1"><div class="bar">${NAV.slice(0,5).map((x,i)=>`<a class="${i?'':'on'}">${x[1]}</a>`).join('')}</div><div class="hero"><h2>探索新的设计灵感</h2><p>导航融入渐变背景，首屏完整呈现</p></div></div>`,
+apply:(s,v)=>s.querySelectorAll('.bar a').forEach(a=>{a.style.background=a.classList.contains('on')?`rgba(255,255,255,${v.a/100})`:'';a.style.borderRadius=(v.r>=24?999:v.r)+'px';a.style.backdropFilter=`blur(${v.blur}px)`})},
+{n:'右侧竖轨菜单',kw:['主菜单移右侧','窄图标竖轨','亮色背景','深色选中底'],sc:'内容区需整块展示的看板',
+why:'把菜单从左边"让出去"，并压缩成窄轨，让看板的卡片网格从左上角开始完整铺开，视线先落在数据上。',
+mis:'右侧菜单违背常规习惯，务必用深色选中底做强对比，让用户一眼找到当前位置。',
+params:[['w','竖轨宽度',48,96,64,'px'],['d','选中底深浅',20,100,90,'%'],['r','选中圆角',0,21,12,'px']],
+css:v=>`.layout{ flex-direction: row; } /* 菜单放右侧 */\n.rail{ width: ${v.w}px; background: #fff; }\n.rail a.active{\n  background: hsl(222 28% ${100-v.d*0.88}%);\n  color: #fff; border-radius: ${v.r}px;\n}`,
+html:()=>`<div class="d2"><div class="main"><div class="w"></div><div></div><div></div><div></div><div></div><div></div><div></div></div><div class="rail">${NAV.map((x,i)=>`<a data-t="${x[1]}" class="${i?'':'on'}">${I[x[0]]}</a>`).join('')}</div></div>`,
+apply:(s,v)=>{const r=s.querySelector('.rail');if(!s.querySelector('.plain'))r.style.width=v.w+'px';s.querySelectorAll('.rail a').forEach(a=>{a.style.background=a.classList.contains('on')?`hsl(222 28% ${100-v.d*0.88}%)`:'';a.style.borderRadius=v.r+'px'})}},
+{n:'当前项展开文字',kw:['平时仅图标','选中项展开文字长条','弹性过渡动画'],sc:'入口多、顶栏空间有限',
+why:'只有当前项占用宽度显示文字，其它保持图标，节省空间又保留"我在哪"的清晰提示；弹性动画让切换有趣且有指向性。',
+mis:'图标必须有辨识度；动画时长建议 300–500ms，过长显得拖沓。',
+params:[['t','动画时长',100,1200,500,'ms'],['b','弹性回弹',100,200,156,'']],
+css:v=>`.nav a span{ max-width:0; opacity:0; }\n.nav a.active span{ max-width:90px; opacity:1; }\n.nav a, .nav a span{\n  transition: all ${v.t}ms cubic-bezier(.34, ${(v.b/100).toFixed(2)}, .64, 1);\n}`,
+html:()=>`<div class="d3"><div class="bar">${NAV.map((x,i)=>`<a class="${i?'':'on'}">${I[x[0]]}<span>${x[1]}</span></a>`).join('')}</div><div class="content"><b>👆 点击不同图标，看文字弹性展开</b><div class="ph"></div><div class="ph"></div></div></div>`,
+apply:(s,v)=>s.querySelectorAll('.bar a,.bar a span').forEach(e=>{if(!s.querySelector('.plain'))e.style.transition=`all ${v.t}ms cubic-bezier(.34,${v.b/100},.64,1)`})},
+{n:'图标菜单配大标题',kw:['侧边栏小图标','左上角放大页面名','旁接范围选择器'],sc:'页面不多的工具类后台',
+why:'页面少 → 小图标足够导航；用超大的页面名做"你在哪"的主提示，旁边接时间范围选择器，标题+筛选一行完成。',
+mis:'页面多时只靠图标会难记，此模式不适用；大标题字号建议 28–40px。',
+params:[['f','标题字号',14,48,32,'px'],['s','侧栏宽度',44,80,56,'px']],
+css:v=>`.side{ width:${v.s}px; } /* 只放小图标 */\n.page-title{ font-size:${v.f}px; font-weight:700; }\n.header{ display:flex; gap:14px; }\n/* 标题右侧紧接：<select>范围选择器 */`,
+html:()=>`<div class="d4"><div class="side">${NAV.slice(0,4).map((x,i)=>`<a data-t="${x[1]}" class="${i?'':'on'}">${I[x[0]]}</a>`).join('')}</div><div style="flex:1"><div class="hd"><h2>首页</h2><select><option>近 7 天</option><option>近 30 天</option><option>本季度</option></select></div><div class="content" style="padding-top:0"><div class="ph"></div><div class="ph"></div></div></div></div>`,
+apply:(s,v)=>{const h=s.querySelector('.hd h2');if(!s.querySelector('.plain'))h.style.fontSize=v.f+'px';else h.style.fontSize='';s.querySelector('.side').style.width=v.s+'px'}},
+{n:'图标轨加悬停提示',kw:['单列图标','悬停弹出文字标签','细线分组'],sc:'功能多、屏幕宽度有限',
+why:'功能再多也只占一列窄轨；悬停时才弹出文字标签解释图标；用细分隔线把功能分组，降低扫描难度。',
+mis:'触屏没有悬停 → 移动端需改为长按或底部栏；提示出现延迟 ≤200ms。',
+params:[['dl','提示出现时长',0,600,180,'ms'],['g','分组线不透明度',0,100,60,'%']],
+css:v=>`.rail a::after{ content: attr(data-label);\n  opacity:0; transition: ${v.dl}ms; }\n.rail a:hover::after{ opacity:1; }\n.rail hr{ border-top:1px solid rgba(255,255,255,${(v.g/100*0.35).toFixed(2)}); }`,
+html:()=>{const g=[['home','首页'],['chart','数据'],['user','用户'],null,['file','文档'],['msg','消息'],['file','归档'],null,['set','设置']];return `<div class="d5"><div class="rail">${g.map((x,i)=>x?`<a data-t="${x[1]}" class="${i?'':'on'}">${I[x[0]]}</a>`:'<hr>').join('')}</div><div class="content"><b>👈 把鼠标悬停到图标上</b><div class="ph"></div><div class="ph"></div></div></div>`},
+apply:(s,v)=>{s.querySelectorAll('.rail hr').forEach(h=>h.style.borderTopColor=`rgba(255,255,255,${v.g/100*0.35})`);const st=s.querySelector('style.dyn')||s.appendChild(Object.assign(document.createElement('style'),{className:'dyn'}));st.textContent=`.d5 .rail a:after{transition:${v.dl}ms}`}},
+{n:'菜单旁快捷操作',kw:['侧边圆形按钮列','亮色强调高频操作（新建/导出）'],sc:'有全局高频操作的后台',
+why:'把"新建""导出"这类在任何页面都高频使用的操作，从页面里提出来，做成菜单旁一列圆形按钮，并用亮色强调最常用的那个。',
+mis:'亮色强调只给 1 个最高频操作，全部高亮等于没有重点。',
+params:[['sz','按钮尺寸',32,56,40,'px'],['h','强调色相',0,360,25,'°']],
+css:v=>`.quick-actions{ display:flex; flex-direction:column; }\n.quick-actions button{ width:${v.sz}px; height:${v.sz}px;\n  border-radius:50%; }\n.quick-actions .primary{\n  background: hsl(${v.h} 100% 55%); color:#fff; }`,
+html:()=>`<div class="d6"><div class="qa"><button class="hot" data-t="新建">＋</button><button data-t="导出">⇩</button><button data-t="搜索">⌕</button></div><div class="side">${NAV.slice(0,5).map((x,i)=>`<a class="${i?'':'on'}">${x[1]}</a>`).join('')}</div><div class="content" style="flex:1"><b>试试左侧圆形按钮</b><div class="ph"></div><div class="ph"></div></div><div class="toast"></div></div>`,
+apply:(s,v)=>s.querySelectorAll('.qa button').forEach(b=>{b.style.width=b.style.height=v.sz+'px';if(b.classList.contains('hot')){b.style.background=`hsl(${v.h} 100% 55%)`;b.style.boxShadow=`0 4px 12px hsla(${v.h},100%,55%,.45)`}})}
+];
+const KEY='navpat_v1';let S=JSON.parse(localStorage.getItem(KEY)||'null')||{seen:[],wrong:{},stats:{ok:0,bad:0},quizDone:false,best:0};
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(S));prog()};
+function prog(){const p=Math.round((S.seen.length/6)*60+(S.quizDone?40:0));pbar.style.width=p+'%';ptxt.textContent=`进度 ${p}%`}
+const app=document.getElementById('app');let cur=0;
+function wire(stage){stage.querySelectorAll('a').forEach(a=>a.onclick=()=>{a.parentNode.querySelectorAll('a').forEach(b=>b.classList.remove('on'));a.classList.add('on');const h=stage.querySelector('.d4 h2');if(h)h.textContent=a.dataset.t;stage.dispatchEvent(new Event('refresh'))});
+stage.querySelectorAll('.qa button').forEach(b=>b.onclick=()=>{const t=stage.querySelector('.toast');t.textContent='⚡ 已触发：'+b.dataset.t+'（无论在哪个页面都能一键操作）';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)})}
+function view(v){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v==v));({home,learn,quiz,wrong,sum})[v]();scrollTo(0,0)}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>view(t.dataset.v));
+function home(){app.innerHTML=`<div class="card" style="margin-bottom:16px"><h1 style="margin:0 0 6px">6 种后台/网页导航设计模式</h1><p class="tip">学习路线：① 逐个看<b>活的演示</b>，拖动参数看 CSS 怎么变 → ② 用「普通导航 / 本模式」开关对比差别 → ③ 测验（答错的题过几题会再考，直到答对）→ ④ 错题本与总结。进度自动保存在本浏览器。</p><button class="btn" onclick="cur=0;view('learn')">开始学习 →</button> <button class="btn ghost" onclick="view('quiz')">直接测验</button></div>
+<div class="grid">${P.map((p,i)=>`<div class="card pcard" onclick="cur=${i};view('learn')"><span class="num">${i+1}</span><b>${p.n}</b>${S.seen.includes(i)?'<span class="done">✓ 已学</span>':''}<div style="margin:8px 0">${p.kw.map(k=>`<span class="chip">${k}</span>`).join('')}</div><div class="tip">📍 ${p.sc}</div></div>`).join('')}</div>`}
+function learn(){const p=P[cur];if(!S.seen.includes(cur)){S.seen.push(cur);save()}
+const v={};p.params.forEach(x=>v[x[0]]=x[4]>x[3]?x[3]:x[4]);
+app.innerHTML=`<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">${P.map((q,i)=>`<button class="tab ${i==cur?'on':''}" onclick="cur=${i};learn()">${i+1}. ${q.n}</button>`).join('')}</div>
+<div class="lesson"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px"><h2 style="margin:0"><span class="num">${cur+1}</span>${p.n}</h2><div class="seg"><button id="bPlain">普通导航</button><button id="bPat" class="on">本模式</button></div></div>
+<div class="stage" id="stage">${p.html()}</div><p class="tip">💡 演示是可以操作的：点击菜单、悬停图标、点按钮。切换左上角开关对比「普通导航」。</p></div>
+<div><div class="card"><h3 style="margin-top:0">🔑 核心提示词</h3>${p.kw.map(k=>`<span class="chip" style="font-size:14px">${k}</span>`).join('')}<h3>📍 适用场景</h3><p>${p.sc}</p><h3>🤔 为什么有效</h3><p class="tip">${p.why}</p><p class="tip">⚠️ ${p.mis}</p></div>
+<div class="card ctrl" style="margin-top:14px"><h3 style="margin:0">🎛 关键参数</h3>${p.params.map(x=>`<label>${x[1]}：<b id="o_${x[0]}">${v[x[0]]}${x[5]}</b></label><input type="range" min="${x[2]}" max="${x[3]}" value="${v[x[0]]}" data-k="${x[0]}" data-u="${x[5]}">`).join('')}<pre id="css"></pre></div></div></div>
+<div style="display:flex;justify-content:space-between;margin-top:16px"><button class="btn ghost" ${cur?'':'disabled'} onclick="cur--;learn()">← 上一个</button>${cur<5?`<button class="btn" onclick="cur++;learn()">下一个 →</button>`:`<button class="btn" onclick="view('quiz')">学完了，去测验 →</button>`}</div>`;
+const st=document.getElementById('stage'),root=()=>st.firstElementChild;
+const upd=()=>{p.apply(st,v);document.getElementById('css').textContent=p.css(v)};
+st.addEventListener('refresh',upd);wire(st);upd();
+app.querySelectorAll('input[type=range]').forEach(r=>r.oninput=()=>{v[r.dataset.k]=+r.value;document.getElementById('o_'+r.dataset.k).textContent=r.value+r.dataset.u;upd()});
+bPlain.onclick=()=>{root().classList.add('plain');bPlain.classList.add('on');bPat.classList.remove('on');st.querySelectorAll('[style]').forEach(e=>{if(!e.classList.contains('stage'))e.removeAttribute('style')});const h=st.querySelector('.d4 h2');if(h)h.style.fontSize=''};
+bPat.onclick=()=>{root().classList.remove('plain');bPat.classList.add('on');bPlain.classList.remove('on');upd()}}
+/* ---------- quiz ---------- */
+const names=P.map(p=>p.n);
+function bank(){const q=[];
+const scen=[['一个旅游网站首页，首屏是整幅风景大图，导航应该怎么处理？',0],['数据大屏/看板需要让卡片网格从左上角完整铺开，菜单放哪种形式最好？',1],['移动端顶部只有一行，却要放 6 个入口，同时要清楚标出当前页？',2],['一个只有 4 个页面的数据报表工具，希望一眼看清当前页并能切换时间范围？',3],['一个功能有 15 个的设计软件，屏幕宽度紧张，图标太多用户记不住？',4],['CRM 后台里「新建客户」在任何页面都要频繁使用？',5],['营销落地页背景是紫粉渐变，导航有白色底和灰色分隔线，显得很割裂，该改成？',0],['项目管理后台，每个页面都需要「导出报表」按钮，且要显眼？',5]];
+scen.forEach((s,i)=>q.push({id:'s'+i,t:'场景匹配',q:s[0],a:s[1]}));
+P.forEach((p,i)=>q.push({id:'m'+i,t:'看图识模式',q:'下面这个可操作的界面用的是哪种导航模式？（可以先点一点、悬停试试）',demo:i,a:i}));
+P.forEach((p,i)=>q.push({id:'k'+i,t:'提示词反推',q:`核心提示词「${p.kw.join('、')}」对应哪种模式？`,a:i}));
+q.push({id:'x1',t:'细节',q:'「当前项展开文字」模式中，让展开带回弹效果的关键是？',opts:['cubic-bezier 第二个控制点 y 值 > 1','把 transition 设为 0','用 display:none 切换','增加 z-index'],a:0,ex:'cubic-bezier(.34,1.56,.64,1) 中 y>1 会超出终点再回来，形成弹性。'});
+q.push({id:'x2',t:'细节',q:'透明顶栏的选中项，推荐的样式是？',opts:['rgba(255,255,255,.2) + 大圆角','纯黑实色方块','下划线加粗 4px 红色','不做任何选中态'],a:0,ex:'半透明白底在任意彩色背景上都可读，又不遮挡背景，圆角使其更柔和。'});
+q.push({id:'x3',t:'细节',q:'「菜单旁快捷操作」里亮色强调应该给几个按钮？',opts:['只给最高频的 1 个','全部都亮色','随机','都不强调'],a:0,ex:'强调是为了建立优先级，全部高亮等于没有重点。'});
+q.push({id:'x4',t:'细节',q:'图标轨加悬停提示在触屏手机上的问题是？',opts:['没有 hover，提示看不到','图标太大','颜色太亮','不能分组'],a:0,ex:'触屏无悬停，需要长按提示、或改用底部标签栏。'});
+return q}
+let Q=null;
+function newQuiz(){const b=bank().sort(()=>Math.random()-.5);Q={queue:b.slice(0,14),pend:[],n:0,ok:0,first:0,total:14,firstTry:{}};}
+function optsOf(q){if(q.opts)return q.opts.map((o,i)=>({o,i}));const s=new Set([q.a]);while(s.size<4)s.add(Math.floor(Math.random()*6));return [...s].sort(()=>Math.random()-.5).map(i=>({o:names[i],i}))}
+function quiz(){if(!Q||(!Q.queue.length&&!Q.pend.length))newQuiz();nextQ()}
+function nextQ(){Q.pend.forEach(p=>p.wait--);const ri=Q.pend.findIndex(p=>p.wait<=0);let q,retry=false;
+if(ri>=0){q=Q.pend.splice(ri,1)[0].q;retry=true}else if(Q.queue.length)q=Q.queue.shift();else if(Q.pend.length){q=Q.pend.shift().q;retry=true}else return finish();
+Q.n++;const op=optsOf(q),left=Q.queue.length+Q.pend.length;
+app.innerHTML=`<div class="card" style="max-width:760px;margin:auto"><div class="tip">第 ${Q.n} 题 · 剩余 ${left} 题 · <span class="chip">${q.t}</span>${retry?'<span class="chip" style="background:#fff1f3;color:#e11d48">🔁 错题重考</span>':''}</div><h2>${q.q}</h2>
+${q.demo!=null?`<div class="stage mini" id="qs">${P[q.demo].html()}</div>`:''}<div id="ops">${op.map(o=>`<button class="opt" data-i="${o.i}">${o.o}</button>`).join('')}</div><div id="fb"></div></div>`;
+if(q.demo!=null){const s=document.getElementById('qs');wire(s);const v={};P[q.demo].params.forEach(x=>v[x[0]]=Math.min(x[3],x[4]));P[q.demo].apply(s,v)}
+app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(app.querySelector('.opt.ok'))return;const i=+b.dataset.i,ok=i==q.a;
+app.querySelectorAll('.opt').forEach(x=>{if(+x.dataset.i==q.a)x.classList.add('ok')});if(!ok)b.classList.add('bad');
+const ex=q.ex||`<b>${P[q.a].n}</b>：${P[q.a].kw.join('、')}。适用：${P[q.a].sc}。${P[q.a].why}`;
+if(ok){S.stats.ok++;if(!retry)Q.first++;if(S.wrong[q.id]){S.wrong[q.id].fixed=true}}else{S.stats.bad++;S.wrong[q.id]={q:q.q.replace(/（.*）/,''),t:q.t,ans:q.opts?q.opts[q.a]:names[q.a],ex:q.ex||P[q.a].why,cnt:((S.wrong[q.id]||{}).cnt||0)+1,fixed:false};Q.pend.push({q,wait:3})}
+save();fb.innerHTML=`<div class="fb ${ok?'ok':'bad'}">${ok?'✅ 答对了！':'❌ 不对，正确答案已标绿。这题过 3 题后会再考你。'}<br>${ex}</div><div style="text-align:right;margin-top:10px"><button class="btn" id="nx">下一题 →</button></div>`;nx.onclick=nextQ;nx.focus()})}
+function finish(){S.quizDone=true;const sc=Math.round(Q.first/Q.total*100);S.best=Math.max(S.best||0,sc);save();Q=null;
+app.innerHTML=`<div class="card" style="max-width:600px;margin:auto;text-align:center"><div class="big">${sc} 分</div><p>首次答对 ${Math.round(sc*14/100)}/14，所有错题都已重考答对 🎉</p><button class="btn" onclick="view('quiz')">再来一轮</button> <button class="btn ghost" onclick="view('wrong')">看错题本</button> <button class="btn ghost" onclick="view('sum')">看总结</button></div>`}
+function wrong(){const w=Object.entries(S.wrong);app.innerHTML=`<div class="card"><h2 style="margin-top:0">📕 错题本（${w.length}）</h2>${w.length?`<table><tr><th>题目</th><th>正确答案</th><th>错次</th><th>状态</th></tr>${w.map(([k,x])=>`<tr><td>${x.q}<div class="tip">${x.ex}</div></td><td><b>${x.ans}</b></td><td>${x.cnt}</td><td>${x.fixed?'✅ 已掌握':'⏳ 待巩固'}</td></tr>`).join('')}</table><p><button class="btn ghost" onclick="if(confirm('清空错题本？')){S.wrong={};save();wrong()}">清空</button></p>`:'<p class="tip">还没有错题，去测验试试吧。</p>'}</div>`}
+function sum(){app.innerHTML=`<div class="card"><h2 style="margin-top:0">🧾 总结速查表</h2><p class="tip">已学 ${S.seen.length}/6 · 累计答对 ${S.stats.ok} · 答错 ${S.stats.bad} · 最高分 ${S.best||0}</p>
+<table><tr><th>#</th><th>模式</th><th>核心提示词</th><th>适用场景</th></tr>${P.map((p,i)=>`<tr><td>${i+1}</td><td><b>${p.n}</b></td><td>${p.kw.join('、')}</td><td>${p.sc}</td></tr>`).join('')}</table>
+<h3>🧠 选择口诀</h3><p class="tip">有大图→<b>透明顶栏</b>；看板要整块→<b>右侧竖轨</b>；横向入口多→<b>当前项展开</b>；页面少的工具→<b>图标+大标题</b>；功能多屏幕窄→<b>图标轨+悬停</b>；全局高频操作→<b>菜单旁快捷操作</b>。</p>
+<h3>✍️ 快速自测（先想再点开）</h3>${P.map(p=>`<details style="margin:6px 0"><summary>「${p.sc}」用什么？</summary><p><b>${p.n}</b> — ${p.kw.join('、')}</p></details>`).join('')}
+<p><button class="btn" onclick="view('quiz')">开始测验</button> <button class="btn ghost" onclick="if(confirm('重置全部进度？')){localStorage.removeItem(KEY);location.reload()}">重置进度</button></p></div>`}
+prog();view('home');
+</script></body></html>
